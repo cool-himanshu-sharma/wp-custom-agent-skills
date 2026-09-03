@@ -1,17 +1,16 @@
-# wp-custom-agent-skills — Claude Code bundle
+# wp-custom-agent-skills — Codex + Antigravity bundle
 
 Generated. Do not edit files here; edit the source in `skills/`, `commands/`, `agents/`
 at the repo root and run `node scripts/build-bundles.mjs`.
 
 ## Install into your plugin
 
-Copy the **contents of this folder** into `<your-plugin>/.claude/` in your WordPress plugin repo:
+Copy the **contents of this folder** into `<your-plugin>/.agents/` in your WordPress plugin repo:
 
 ```
-<your-plugin>/.claude/
+<your-plugin>/.agents/
   skills/
-  commands/
-  agents/
+  workflows/
 ```
 
 Commit it, and every developer on that repo gets the same workflow — no per-machine setup.
@@ -30,11 +29,12 @@ On Windows, Explorer asks whether to *merge* folders — say yes.
 
 ## How commands work here
 
-commands/  ->  type /cp-spec in chat
+workflows/  ->  Antigravity: type /cp-spec in chat
+skills/     ->  Codex: type $cp-spec (Codex uses $ for skills, not /)
 
 ## The official WordPress skills (optional but recommended)
 
-This bundle contains the Claude Code workflow layer only. The official WordPress
+This bundle contains the Codex + Antigravity workflow layer only. The official WordPress
 knowledge skills (hooks, REST, blocks, WP-CLI, Playground) are **not** included — they are
 someone else's work and we ship no redistribution terms for them.
 
@@ -42,7 +42,7 @@ To add them:
 
 ```bash
 git clone https://github.com/WordPress/agent-skills
-cp -r agent-skills/skills/* <your-plugin>/.claude/skills/
+cp -r agent-skills/skills/* <your-plugin>/.agents/skills/
 ```
 
 Without them everything still runs; the skills fall back to general WordPress practice and
@@ -53,7 +53,7 @@ say so rather than pretending.
 Skills invoke the deterministic plugin scanner at:
 
 ```
-.claude/skills/cp-context-discovery/scripts/plugin_context.mjs
+.agents/skills/cp-context-discovery/scripts/plugin_context.mjs
 ```
 
 That path is baked for this bundle's layout. Requires Node; no PHP needed to run it.

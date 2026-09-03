@@ -63,8 +63,7 @@ wp-custom-agent-skills/
 ├── bundles/       ← THE OUTPUT. This is the part developers copy.
 │   ├── claude/         → copy into  <your-plugin>/.claude/
 │   ├── cursor/         → copy into  <your-plugin>/.cursor/
-│   ├── codex/          → copy into  <your-plugin>/.codex/
-│   └── antigravity/    → copy into  <your-plugin>/.agent/
+│   └── agents/         → copy into  <your-plugin>/.agents/   (Codex + Antigravity)
 │
 ├── COMMANDS.md       ← Every command and skill explained in plain English.
 ├── ARCHITECTURE.md   ← How the system is designed, and why.
@@ -81,8 +80,7 @@ Each bundle is the same workflow rewritten into the layout that agent expects:
 |---|---|
 | `bundles/claude/` | `skills/` · `commands/` · `agents/` |
 | `bundles/cursor/` | `skills/` (commands and personas become skills) |
-| `bundles/codex/` | `skills/` · `prompts/` |
-| `bundles/antigravity/` | `skills/` · `workflows/` |
+| `bundles/agents/` | `skills/` · `workflows/` — read by **both** Codex and Antigravity |
 
 ---
 
@@ -104,8 +102,18 @@ Copy the **contents** of your bundle into the matching folder inside your plugin
 |---|---|---|
 | **Claude Code** | `bundles/claude/*` | `<your-plugin>/.claude/` |
 | **Cursor** | `bundles/cursor/*` | `<your-plugin>/.cursor/` |
-| **Codex** | `bundles/codex/*` | `<your-plugin>/.codex/` |
-| **Antigravity** | `bundles/antigravity/*` | `<your-plugin>/.agent/` |
+| **Codex** | `bundles/agents/*` | `<your-plugin>/.agents/` |
+| **Antigravity** | `bundles/agents/*` | `<your-plugin>/.agents/` |
+
+Codex and Antigravity share `bundles/agents/` because both tools read `.agents/skills/`.
+If your team uses both, you install it once.
+
+> ### ⚠️ Already have that folder? Do not delete it
+>
+> If your plugin already has a `.claude/`, `.cursor/` or `.agents/` folder with skills,
+> commands or rules in it — **keep all of it**. You are adding files, not replacing a
+> folder. Everything we ship is named `cp-…`, so it cannot overwrite anything you or the
+> official WordPress skills already use. Full details [below](#what-if-i-already-have-skills-in-there).
 
 ```bash
 # example — Claude Code
@@ -114,13 +122,51 @@ cp -r wp-custom-agent-skills/bundles/claude/*  my-plugin/.claude/
 
 On Windows, dragging the folder contents across in Explorer does the same thing.
 
-Afterwards your plugin looks like this:
+### What if I already have skills in there?
+
+**Keep them. Delete nothing.** These files are added alongside whatever is already
+there — your existing skills, commands and rules keep working exactly as before.
+
+Copy the **contents** of the bundle (`bundles/claude/*`), not the folder itself. Folders
+with the same name merge; only files with the same *name* would replace anything:
+
+```bash
+# adds to .claude/, leaves your existing skills untouched
+cp -r wp-custom-agent-skills/bundles/claude/*  my-plugin/.claude/
+```
+
+Nothing here can collide with a skill you already have, because **every name we ship is
+prefixed `cp-`** — `cp-security-review`, `cp-build`, `cp-agent-os`. Your own skills and
+the official WordPress `wp-*` skills sit beside them untouched. That is the whole reason
+for the prefix.
+
+**One thing to watch:** each bundle has a `README.md` at its root, so copying `*` would
+overwrite an existing `.claude/README.md`. If you have one you care about, either back it
+up first or copy only the subfolders:
+
+```bash
+cp -r wp-custom-agent-skills/bundles/claude/skills    my-plugin/.claude/
+cp -r wp-custom-agent-skills/bundles/claude/commands  my-plugin/.claude/
+cp -r wp-custom-agent-skills/bundles/claude/agents    my-plugin/.claude/
+```
+
+On Windows, Explorer asks whether to *merge* folders — say yes. It only prompts to replace
+individual files whose names match.
+
+Afterwards your plugin looks like this — note that anything you already had is still
+there, sitting beside the new `cp-*` files:
 
 ```
 my-plugin/
 ├── .claude/
 │   ├── skills/
+│   │   ├── cp-security-review/     ← ours
+│   │   ├── cp-implementation/      ← ours
+│   │   ├── wp-rest-api/            ← official WordPress skill, untouched
+│   │   └── my-own-skill/           ← yours, untouched
 │   ├── commands/
+│   │   ├── cp-build.md             ← ours
+│   │   └── deploy.md               ← yours, untouched
 │   └── agents/
 ├── my-plugin.php
 └── includes/
@@ -184,19 +230,25 @@ fine — `/cp-triage` exists precisely so the process scales down as well as up.
 ### How commands appear on each agent
 
 Every supported agent has a `/` mechanism, but each spells it differently. The build
-renders the same source four ways so it feels native everywhere.
+renders the same source three ways so it feels native everywhere.
 
 | Agent | You type | Status |
 |---|---|---|
 | **Claude Code** | `/cp-spec` | verified |
 | **Cursor** | `/cp-spec` | format verified |
-| **Codex** | `/prompts:cp-spec` | **unverified** |
-| **Antigravity** | `/cp-spec` | **unverified** |
+| **Codex** | **`$cp-spec`** — dollar, not slash | verified |
+| **Antigravity** | `/cp-spec` | verified |
 
-**Unverified** means the bundle follows that tool's published layout but nobody has
-confirmed it by actually loading it. If the commands do not show up, it is a one-line path
-fix in `TARGETS` in `scripts/build-bundles.mjs`. Antigravity's own docs disagree on
-`.agent/` versus `.agents/`; the bundle uses `.agent/`.
+**Codex is the odd one out: it uses `$`, not `/`.** In Codex, `/` lists only built-in
+commands and its deprecated *global* prompts (`~/.codex/prompts`, which by design are
+"not shared through your repository"). Skills are mentioned with `$` in the CLI and IDE,
+or `@` in ChatGPT. Codex will also pick the right skill on its own from a plain-English
+request, which is how skills are meant to work.
+
+**Codex and Antigravity share one bundle** because both scan `.agents/skills/`.
+Antigravity additionally reads `.agents/workflows/`, which is what gives it `/cp-*`.
+Earlier releases shipped `.codex/` and `.agent/` (singular); neither tool reads those, so
+neither showed anything.
 
 ### Adding the official WordPress skills (optional, recommended)
 
@@ -225,7 +277,7 @@ as a change to the code.
 Edit the source, then rebuild:
 
 ```bash
-node scripts/build-bundles.mjs   # regenerates all four bundles
+node scripts/build-bundles.mjs   # regenerates all three bundles
 node scripts/verify.mjs          # fails if bundles/ drifted from source
 ```
 

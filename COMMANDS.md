@@ -11,6 +11,11 @@ There are three kinds of thing in this system.
 **Commands** are what *you* type in chat. They start with a slash, like `/cp-security`.
 Think of them as buttons.
 
+> **One exception — Codex uses `$`, not `/`.** Codex reserves `/` for its own built-in
+> commands, and reaches skills with `$` instead: `$cp-security`. Everything below works
+> the same, you just type `$` where this page says `/`. You can also simply describe what
+> you want in plain words — Codex picks the matching skill on its own.
+
 **Skills** are instruction files that the *AI agent* reads. You never type a skill name.
 When you press a button (a command), the agent opens the matching instruction file and
 follows it step by step.

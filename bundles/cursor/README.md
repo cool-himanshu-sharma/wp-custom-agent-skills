@@ -14,6 +14,18 @@ Copy the **contents of this folder** into `<your-plugin>/.cursor/` in your WordP
 
 Commit it, and every developer on that repo gets the same workflow — no per-machine setup.
 
+### Already have that folder?
+
+**Keep it. Delete nothing.** Copy the *contents* of this folder into it. Folders of the
+same name merge, and every name shipped here is prefixed `cp-`, so it cannot collide
+with a skill you already have — your own skills and the official WordPress `wp-*` skills
+sit beside it untouched.
+
+The one file that could overwrite something is this `README.md` at the bundle root. If
+you already have one there, copy just the subfolders instead.
+
+On Windows, Explorer asks whether to *merge* folders — say yes.
+
 ## How commands work here
 
 skills/ (disable-model-invocation)  ->  type /cp-spec in chat
