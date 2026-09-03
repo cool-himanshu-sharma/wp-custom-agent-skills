@@ -87,6 +87,27 @@ No cleverness that a maintainer in two years will misread. Comments explain *why
 Every Critical and Required carries `file:line` and a concrete fix. A finding the author
 cannot act on is noise.
 
+**Confirm before you file.** Read the surrounding function and the caller first — a check
+that looks missing is often one level up. For anything security-shaped, apply the "Not a
+finding" table in `wp-security-review` §5 rather than duplicating the judgement here.
+
+**Not a finding — common cases, not a complete list.** Each row is a hypothesis to check
+against this change, not a rule to apply on sight. A concern that resembles a row here is
+still a finding if the code actually has the problem.
+
+| Looks like | Actually |
+|---|---|
+| Style that differs from your preference | If PHPCS passes and it matches the plugin's existing convention, it is not a finding. The plugin's convention wins over yours |
+| "This could be refactored" | **Optional** at most, and only with a concrete alternative. Without one it is not actionable |
+| A pattern you would not have chosen | Not a finding. Review what the change does, not how you would have written it |
+| Missing test for an untouched code path | Out of scope. Ask for tests covering *this change*, not the whole file's history |
+| Pre-existing issue the diff did not introduce | Mention once, below the findings, marked as pre-existing. Do not block the merge on it |
+| A breaking change to a hook or option name | **Always a real finding.** Never downgrade this one — the cost lands on other people's sites |
+
+**Calibration.** Before submitting: does every Critical genuinely block the merge, and
+does every Required genuinely have to happen before it lands? If not, move it down. A
+verdict of REQUEST CHANGES over three Nits teaches the author to skim the next review.
+
 ### 4. Output
 
 ```markdown
@@ -139,6 +160,11 @@ opinion. State what you actually ran.
 - **Rubber-stamping your own work.** If you wrote the code, review it as an adversary or
   hand it to the `wp-code-reviewer` persona with fresh context.
 - **All findings marked Critical.** Nobody triages a report where everything is urgent.
+- **Reviewing the author's taste instead of the change.** If it passes PHPCS, matches the
+  plugin's conventions and does what the task asked, a different structure you would have
+  preferred is not a finding.
+- **Padding the review to look thorough.** Five Nits do not make a review more valuable
+  than one accurate Required. Volume is not rigour.
 
 ## Escalation
 

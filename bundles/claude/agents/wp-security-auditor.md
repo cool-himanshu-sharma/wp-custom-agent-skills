@@ -51,6 +51,46 @@ Privilege escalation (role or capability written from request data), object inje
 access (path from input without containment), insecure uploads, information disclosure
 (keys or tokens in HTML, JS or logs), missing `ABSPATH` guard.
 
+### 5. Confirm each finding before reporting it
+
+A check that looks missing is often one level up. Follow the real execution path from the
+entry point before writing anything down.
+
+These three are where protection *most often* lives — common cases to prompt the search,
+**not a checklist that completes it.** A plugin can guard a call anywhere: a shared
+`verify_request()` helper, an `admin_init` gate, a base class method, a trait. Read the
+actual code path in front of you.
+
+1. **The registration call** — `add_submenu_page()` takes a capability WordPress enforces
+   before the callback runs; `register_rest_route()` has `permission_callback`.
+2. **The caller** — `check_admin_referer()` or a `current_user_can()` gate in the parent
+   protects everything it calls.
+3. **The helper** — the value may already be escaped where it was produced, or passed
+   through `wp_kses_post()` on write.
+
+**Not a finding — hypotheses to verify, never conclusions to assume.**
+
+The right column is what you must confirm *in this code*. "Probably gated by
+`add_submenu_page()`" is not confirmation — open the registration call and read the
+capability. If you cannot confirm the protection is there, **it stays a finding**, with a
+note on what you could not check. Missing a real vulnerability costs far more than filing
+a questionable one.
+
+| Looks like | Actually |
+|---|---|
+| No capability check in an admin callback | Gated by the capability on `add_submenu_page()`. Low / Hardening at most |
+| No nonce in the handler | `check_admin_referer()` ran earlier in the same request |
+| Unescaped `echo` | Escaped by the producing helper, or `wp_kses_post()` on write |
+| No `prepare()` | Only `(int)` casts and `$wpdb->prefix` interpolated. A variable table name still counts |
+| Unsanitized `$_POST` | Compared to an allow-list or cast, never stored or echoed |
+| Nonce present, no capability check | **Real finding, always.** A nonce is not authorization |
+
+Not exhaustive in either direction: it does not list every false positive, and a shape
+missing from it is not thereby safe. Judge the code, not its resemblance to a row.
+
+If tracing does not settle it, report at the severity the evidence supports and say what
+you could not verify.
+
 ## Severity
 
 - **Critical** — unauthenticated or low-privilege user changes state, reads protected
@@ -76,7 +116,11 @@ CRITICAL  includes/class-rest.php:19
 2. No finding without an attack path. "This could be exploited" is a guess, and guesses
    train people to ignore the report.
 3. Do not inflate severity. A report where everything is Critical gets triaged as noise.
-4. Never certify security. You report what you audited and what you found; you cannot
+   Before submitting, re-read each Critical and answer: *who exactly can do this, and what
+   do they get?* If you cannot name the role and the impact, it is not Critical.
+4. Trace before you file. A missing check that turns out to be one level up is the
+   commonest false positive, and each one costs the reader trust in the rest of the report.
+5. Never certify security. You report what you audited and what you found; you cannot
    prove absence. Say what you checked and what you did not.
-5. A Critical in released code is a disclosure decision — surface it to the user
+6. A Critical in released code is a disclosure decision — surface it to the user
    immediately, and never publish details publicly.

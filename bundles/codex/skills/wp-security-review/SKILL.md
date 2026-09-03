@@ -107,7 +107,61 @@ Beyond entry points, check for:
   logged, or returned by a REST route readable by lower roles.
 - **Missing `ABSPATH` guard** at the top of directly-reachable PHP files.
 
-### 5. Rate honestly and report with evidence
+### 5. Confirm each finding before you report it
+
+An unconfirmed finding is a guess with a severity label on it. Most WordPress false
+positives come from reading one hunk in isolation when the protection lives one level up,
+so trace every candidate before writing it down.
+
+**Before declaring a check missing, follow the actual execution path** from the entry
+point to the line you are worried about, and find out what really runs in between.
+
+The three places below are where protection *most often* turns out to live. They are
+examples to prompt the search, **not a checklist that completes it** — a plugin can guard
+a call anywhere: a shared `verify_request()` helper, an `admin_init` gate, an early
+`return` in a bootstrap, a base class method, a trait. Read this plugin's real code path.
+
+1. **The registration call.** `add_menu_page()`, `add_submenu_page()` and
+   `add_options_page()` take a capability argument that WordPress enforces *before* the
+   callback runs. `register_rest_route()` has `permission_callback`.
+2. **The caller.** A `check_admin_referer()`, `check_ajax_referer()` or
+   `current_user_can()` gate in the parent function protects everything it calls.
+3. **The helper.** The value may already be escaped by the function that produced it, or
+   passed through `wp_kses_post()` on write.
+
+**Not a finding — read as hypotheses, never as conclusions.**
+
+The right-hand column is what you must **verify in this specific code**, not what you may
+assume. "It is probably gated by `add_submenu_page()`" is not a verification — open the
+registration call and read the capability argument. If you cannot confirm the protection
+exists, **it stays a finding**, recorded at the severity the evidence supports with a note
+saying what you could not check. Dismissing a real issue is far worse than filing a
+questionable one.
+
+| Looks like | Actually |
+|---|---|
+| No `current_user_can()` in an admin page callback | The capability passed to `add_submenu_page()` already gates it. Worth an in-callback check as **Low / Hardening** — not Critical |
+| No `wp_verify_nonce()` in the handler | `check_admin_referer()` already ran earlier in the same request |
+| Unescaped `echo $var` | `$var` was escaped by the helper that produced it, or filtered through `wp_kses_post()` on write |
+| `$wpdb->query()` with no `prepare()` | Every interpolated value is an `(int)` cast or `$wpdb->prefix`, so nothing is injectable. A variable *table name* is still a finding |
+| `$_POST` read with no `sanitize_*` | The value is compared against an allow-list or cast to a type, and is never stored or echoed |
+| Missing `ABSPATH` guard | The file is only ever `require`d from a guarded bootstrap and is not directly reachable |
+| Nonce present but no capability check | Still a **real finding** — a nonce is not authorization. This one is never a false positive |
+
+The table is not exhaustive in either direction. It does not list every false positive,
+and it certainly does not list everything that is safe — a shape absent from it is not
+thereby cleared. Judge the code, not the resemblance to a row.
+
+If tracing does not settle it, report it at the severity the *evidence* supports and say
+plainly what you could not verify. "I could not confirm X because Y" is useful to a
+reviewer. A Critical you never traced is not.
+
+**Calibration.** Re-read every Critical against one question: *who exactly can do this,
+and what do they get?* If you cannot name the role and the impact in one sentence, it is
+not Critical. A report where everything is Critical carries the same information as a
+report where nothing is.
+
+### 6. Rate honestly and report with evidence
 
 | Severity | Meaning |
 |---|---|
@@ -136,6 +190,8 @@ people to ignore the report. If you are unsure, say so and say what would settle
 ## Verification
 
 - Every entry point from §2 is accounted for — audited or explicitly ruled out.
+- Every Critical and High was traced through §5 before being reported, not read off a
+  single hunk.
 - Every Critical and High has a named attack path and a concrete fix.
 - The PHPCS security sniffs were run, or their absence is stated.
 - No security sniff was silenced to reach green.
@@ -154,6 +210,12 @@ people to ignore the report. If you are unsure, say so and say what would settle
 - **`sanitize_text_field()` as a universal answer.** It is not escaping, does not make a
   URL safe, and does not validate a value against an allow-list.
 - **Rating everything Critical.** It destroys the signal and the report stops being read.
+- **Reporting a missing check that exists one level up.** The commonest false positive:
+  the capability is on the `add_submenu_page()` call, or the nonce was verified by the
+  caller. Trace it (§5) before you write it down.
+- **Reporting a defence-in-depth suggestion as a vulnerability.** "Could also check the
+  capability inside the callback" is Low / Hardening. Filing it as Critical is how a
+  report loses its reader.
 - **Declaring code secure.** You can report what you audited and found; you cannot certify
   absence. Say what you checked.
 
