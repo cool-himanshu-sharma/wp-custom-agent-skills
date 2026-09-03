@@ -66,6 +66,7 @@ wp-custom-agent-skills/
 │   ├── codex/          → copy into  <your-plugin>/.codex/
 │   └── antigravity/    → copy into  <your-plugin>/.agent/
 │
+├── COMMANDS.md       ← Every command and skill explained in plain English.
 ├── ARCHITECTURE.md   ← How the system is designed, and why.
 └── README.md         ← This file.
 ```
@@ -146,6 +147,9 @@ Open your agent in the plugin folder. Type `/` and the `wp-*` commands appear.
 ## How to use it
 
 Type a command in chat. The agent loads the matching skill and follows it.
+
+> **New here?** [COMMANDS.md](COMMANDS.md) explains every command and skill in plain
+> English — what each one does, which skill it runs, and when to use it.
 
 | Command | What it does |
 |---|---|
@@ -303,6 +307,8 @@ from evidence.
 
 ### Further reading
 
+- [COMMANDS.md](COMMANDS.md) — every command and skill explained in plain English. Start
+  here if you are new to the system
 - [ARCHITECTURE.md](ARCHITECTURE.md) — the four layers, precedence, and which skill hands
   off to which
 - [skills/wp-agent-os/references/definition-of-done.md](skills/wp-agent-os/references/definition-of-done.md)
