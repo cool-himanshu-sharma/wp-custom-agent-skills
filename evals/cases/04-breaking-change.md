@@ -1,6 +1,6 @@
 # Eval 04 — Renaming a hook is a breaking change
 
-**Skill under test:** `wp-code-review`, `wp-context-discovery`
+**Skill under test:** `cp-code-review`, `cp-context-discovery`
 **Isolates:** the public API / back-compat axis that generic review does not have.
 
 ## Prompt

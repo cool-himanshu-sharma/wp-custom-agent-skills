@@ -54,14 +54,14 @@ const yamlStr = (s) => '"' + String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"
  * baked into the docs must be rewritten per bundle. A path that is right for Claude Code
  * is wrong for Cursor, and a wrong path fails on the first step of every task.
  */
-const SCANNER_RE = /(?:~\/\.claude|\.claude|\.cursor|\.codex|\.agent)?\/?skills\/wp-context-discovery\/scripts\/plugin_context\.mjs/g;
+const SCANNER_RE = /(?:~\/\.claude|\.claude|\.cursor|\.codex|\.agent)?\/?skills\/cp-context-discovery\/scripts\/plugin_context\.mjs/g;
 
 const TARGETS = {
   claude: {
     label: "Claude Code",
     copyInto: "<your-plugin>/.claude/",
     skillsDir: "skills",
-    scanner: ".claude/skills/wp-context-discovery/scripts/plugin_context.mjs",
+    scanner: ".claude/skills/cp-context-discovery/scripts/plugin_context.mjs",
     commands: "native",   // commands/*.md -> /name
     personas: "native",   // agents/*.md
     verified: true,
@@ -70,7 +70,7 @@ const TARGETS = {
     label: "Cursor",
     copyInto: "<your-plugin>/.cursor/",
     skillsDir: "skills",
-    scanner: ".cursor/skills/wp-context-discovery/scripts/plugin_context.mjs",
+    scanner: ".cursor/skills/cp-context-discovery/scripts/plugin_context.mjs",
     commands: "skill",    // skill with disable-model-invocation: true -> /name
     personas: "skill",
     verified: true,
@@ -79,7 +79,7 @@ const TARGETS = {
     label: "Codex",
     copyInto: "<your-plugin>/.codex/",
     skillsDir: "skills",
-    scanner: ".codex/skills/wp-context-discovery/scripts/plugin_context.mjs",
+    scanner: ".codex/skills/cp-context-discovery/scripts/plugin_context.mjs",
     commands: "prompt",   // prompts/*.md -> /prompts:name
     personas: "skill",
     verified: false,
@@ -88,7 +88,7 @@ const TARGETS = {
     label: "Antigravity",
     copyInto: "<your-plugin>/.agent/",
     skillsDir: "skills",
-    scanner: ".agent/skills/wp-context-discovery/scripts/plugin_context.mjs",
+    scanner: ".agent/skills/cp-context-discovery/scripts/plugin_context.mjs",
     commands: "workflow", // workflows/*.md -> /name
     personas: "skill",
     verified: false,
@@ -216,10 +216,10 @@ for (const [key, target] of Object.entries(TARGETS)) {
 
   // 4. per-bundle README
   const cmdLine = {
-    native: "commands/  ->  type /wp-spec in chat",
-    skill: "skills/ (disable-model-invocation)  ->  type /wp-spec in chat",
-    prompt: "prompts/  ->  type /prompts:wp-spec in chat",
-    workflow: "workflows/  ->  type /wp-spec in chat",
+    native: "commands/  ->  type /cp-spec in chat",
+    skill: "skills/ (disable-model-invocation)  ->  type /cp-spec in chat",
+    prompt: "prompts/  ->  type /prompts:cp-spec in chat",
+    workflow: "workflows/  ->  type /cp-spec in chat",
   }[target.commands];
 
   emit(

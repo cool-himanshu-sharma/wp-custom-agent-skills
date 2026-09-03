@@ -154,6 +154,29 @@ for (const f of agentFiles) {
 }
 if (agentFiles.length) pass("agents", `${agentFiles.length} agents found`);
 
+// ---------- name collisions across the three sources ----------
+// The Cursor bundle flattens skills, commands and personas into one skills/ directory,
+// so a name shared by any two of them silently overwrites a file. That is how the
+// wp-release command once replaced the wp-release skill, shipping Cursor a 32-line
+// wrapper in place of the 163-line release procedure. Fail, do not warn.
+{
+  const seen = new Map();
+  const claim = (name, source) => {
+    if (seen.has(name)) {
+      fail("collisions", `"${name}" is declared by both ${seen.get(name)} and ${source}; ` +
+        `they collide in the Cursor bundle, where one silently overwrites the other`);
+    } else {
+      seen.set(name, source);
+    }
+  };
+  for (const n of declaredSkillNames) claim(n, "a skill");
+  for (const f of commandFiles) claim(f.replace(/\.md$/, ""), "a command");
+  for (const f of agentFiles) claim(f.replace(/\.md$/, ""), "a persona");
+  if (!failures.some((x) => x.check === "collisions")) {
+    pass("collisions", `${seen.size} skill/command/persona names are unique`);
+  }
+}
+
 // ---------- 7. relative links resolve ----------
 const markdownFiles = [];
 (function walk(dir) {
@@ -212,15 +235,15 @@ const UPSTREAM = new Set([
   "wp-abilities-audit", "wp-abilities-verify",
 ]);
 
-const routerSrc = read(path.join(skillsDir, "wp-agent-os", "SKILL.md")) || "";
+const routerSrc = read(path.join(skillsDir, "cp-agent-os", "SKILL.md")) || "";
 const routed = new Set();
-const rx = /`(wp-[a-z-]+|company-[a-z-]+|wpds|blueprint)`/g;
+const rx = /`(cp-[a-z-]+|wp-[a-z-]+|wpds|blueprint)`/g;
 let rm;
 while ((rm = rx.exec(routerSrc)) !== null) routed.add(rm[1]);
 
 for (const nameRef of routed) {
   if (!declaredSkillNames.has(nameRef) && !UPSTREAM.has(nameRef)) {
-    fail("routing", `wp-agent-os routes to "${nameRef}" but no such skill exists locally or upstream`);
+    fail("routing", `cp-agent-os routes to "${nameRef}" but no such skill exists locally or upstream`);
   }
 }
 pass("routing", `${routed.size} routed skill names checked against local + upstream`);

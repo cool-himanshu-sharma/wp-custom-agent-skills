@@ -1,7 +1,7 @@
 # Eval 01 — Full security audit finds every planted defect
 
-**Skill under test:** `wp-security-review`
-**Command:** `/wp-security`
+**Skill under test:** `cp-security-review`
+**Command:** `/cp-security`
 
 ## Prompt
 

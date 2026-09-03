@@ -8,7 +8,7 @@ This page explains every command you can type and every skill behind it, in plai
 
 There are three kinds of thing in this system.
 
-**Commands** are what *you* type in chat. They start with a slash, like `/wp-security`.
+**Commands** are what *you* type in chat. They start with a slash, like `/cp-security`.
 Think of them as buttons.
 
 **Skills** are instruction files that the *AI agent* reads. You never type a skill name.
@@ -33,31 +33,31 @@ you only have to remember 13 short commands, and the WordPress rules stay in one
 
 | You type | It runs this skill | In one line |
 |---|---|---|
-| `/wp-triage` | `wp-task-triage` | Decides how big the job is before starting |
-| `/wp-context` | `wp-context-discovery` | Looks at your plugin and reports what is inside it |
-| `/wp-spec` | `wp-specification` | Writes down what will be built, before building |
-| `/wp-plan` | `wp-planning` | Splits the work into small tasks in the right order |
-| `/wp-build` | `wp-implementation` | Writes the code, with WordPress safety rules applied |
-| `/wp-test` | `wp-testing` | Writes and runs tests to prove the code works |
-| `/wp-security` | `wp-security-review` | Hunts for security holes |
-| `/wp-review` | `wp-code-review` | Reviews the change like a senior developer would |
-| `/wp-perf` | `wp-performance-review` | Finds what is making the site slow, and fixes it |
-| `/wp-debug` | `wp-debugging` | Finds the real cause of a bug |
-| `/wp-release` | `wp-release` | Prepares a safe release |
-| `/wp-feature` | *(runs many skills in order)* | Does the whole job from start to finish |
-| `/wp-bootstrap-conventions` | `company-conventions-bootstrap` | Learns your team's style from your real plugins |
+| `/cp-triage` | `cp-task-triage` | Decides how big the job is before starting |
+| `/cp-context` | `cp-context-discovery` | Looks at your plugin and reports what is inside it |
+| `/cp-spec` | `cp-specification` | Writes down what will be built, before building |
+| `/cp-plan` | `cp-planning` | Splits the work into small tasks in the right order |
+| `/cp-build` | `cp-implementation` | Writes the code, with WordPress safety rules applied |
+| `/cp-test` | `cp-testing` | Writes and runs tests to prove the code works |
+| `/cp-security` | `cp-security-review` | Hunts for security holes |
+| `/cp-review` | `cp-code-review` | Reviews the change like a senior developer would |
+| `/cp-perf` | `cp-performance-review` | Finds what is making the site slow, and fixes it |
+| `/cp-debug` | `cp-debugging` | Finds the real cause of a bug |
+| `/cp-release` | `cp-release-process` | Prepares a safe release |
+| `/cp-feature` | *(runs many skills in order)* | Does the whole job from start to finish |
+| `/cp-bootstrap-conventions` | `cp-conventions-bootstrap` | Learns your team's style from your real plugins |
 
 Three more skills run **automatically**. You never type them:
-`wp-agent-os`, `wp-static-analysis`, `company-wp-conventions`. They are explained
+`cp-agent-os`, `cp-static-analysis`, `cp-conventions`. They are explained
 [further down](#the-3-skills-you-never-type).
 
 ---
 
 ## The commands, one by one
 
-### `/wp-triage`
+### `/cp-triage`
 
-**Runs the skill:** `wp-task-triage`
+**Runs the skill:** `cp-task-triage`
 
 **What the skill does:** It decides how much work a job really needs, before anyone
 touches code. It asks six questions about the task:
@@ -84,9 +84,9 @@ for a new payment feature. This makes small jobs quick and big jobs careful.
 
 ---
 
-### `/wp-context`
+### `/cp-context`
 
-**Runs the skill:** `wp-context-discovery`
+**Runs the skill:** `cp-context-discovery`
 
 **What the skill does:** It runs a scanner over your plugin and reports the facts:
 
@@ -101,16 +101,16 @@ prefix, or add an option that already exists, or write code in a style that does
 the rest of your plugin. This stops all of that.
 
 Important: the scanner only reports **facts**. It will say "1 REST route is open to
-everyone." It will never say "this is insecure." Judging is the job of `/wp-security`.
+everyone." It will never say "this is insecure." Judging is the job of `/cp-security`.
 
 **Use it when:** You start work on a plugin you have not touched in a while. It is the
 first thing to run in a new plugin.
 
 ---
 
-### `/wp-spec`
+### `/cp-spec`
 
-**Runs the skill:** `wp-specification`
+**Runs the skill:** `cp-specification`
 
 **What the skill does:** It writes down exactly what will be built, before any code is
 written. It covers nine things:
@@ -133,9 +133,9 @@ choices to be made on purpose instead of by accident.
 
 ---
 
-### `/wp-plan`
+### `/cp-plan`
 
-**Runs the skill:** `wp-planning`
+**Runs the skill:** `cp-planning`
 
 **What the skill does:** It takes the spec and breaks it into small tasks, in an order that
 works for WordPress. For each task it writes down what it delivers, what it depends on,
@@ -158,9 +158,9 @@ invent requirements.
 
 ---
 
-### `/wp-build`
+### `/cp-build`
 
-**Runs the skill:** `wp-implementation`
+**Runs the skill:** `cp-implementation`
 
 **What the skill does:** It writes the actual code, applying WordPress safety rules *while
 typing*, not afterwards. The order it always follows for anything handling a form or
@@ -179,8 +179,8 @@ changing anything other plugins might depend on.
 
 **Two ways to run it:**
 
-- `/wp-build` — does the next task, then stops so you can look
-- `/wp-build auto` — does every task in the plan after you approve once
+- `/cp-build` — does the next task, then stops so you can look
+- `/cp-build auto` — does every task in the plan after you approve once
 
 **Why it matters:** It is far cheaper to write code correctly than to find the mistake in
 review a week later.
@@ -189,9 +189,9 @@ review a week later.
 
 ---
 
-### `/wp-test`
+### `/cp-test`
 
-**Runs the skill:** `wp-testing`
+**Runs the skill:** `cp-testing`
 
 **What the skill does:** It picks the cheapest kind of test that can actually prove the
 behaviour — PHPUnit, wp-env, Playwright for browser testing, Jest for block JavaScript, or
@@ -212,9 +212,9 @@ was never broken and never notice.
 
 ---
 
-### `/wp-security`
+### `/cp-security`
 
-**Runs the skill:** `wp-security-review`
+**Runs the skill:** `cp-security-review`
 
 **What the skill does:** First it runs the automated security checks. Then it makes a list
 of **every** way data can get into your plugin from outside:
@@ -243,9 +243,9 @@ or permissions.
 
 ---
 
-### `/wp-review`
+### `/cp-review`
 
-**Runs the skill:** `wp-code-review`
+**Runs the skill:** `cp-code-review`
 
 **What the skill does:** Reviews a change the way a senior WordPress developer would, across
 seven areas:
@@ -266,9 +266,9 @@ using it.
 
 ---
 
-### `/wp-perf`
+### `/cp-perf`
 
-**Runs the skill:** `wp-performance-review`
+**Runs the skill:** `cp-performance-review`
 
 **What the skill does:** It measures **first**, then fixes, then measures again. It looks
 for the usual WordPress causes of slowness:
@@ -288,9 +288,9 @@ guess.* Without a measurement you cannot tell whether you helped or hurt.
 
 ---
 
-### `/wp-debug`
+### `/cp-debug`
 
-**Runs the skill:** `wp-debugging`
+**Runs the skill:** `cp-debugging`
 
 **What the skill does:** Four steps, in order:
 
@@ -311,9 +311,9 @@ hook not firing, a REST route returning 404 or 403.
 
 ---
 
-### `/wp-release`
+### `/cp-release`
 
-**Runs the skill:** `wp-release`
+**Runs the skill:** `cp-release-process`
 
 **What the skill does:** Walks the full release checklist and treats anything unticked as a
 blocker:
@@ -341,13 +341,13 @@ roll back.
 
 ---
 
-### `/wp-feature`
+### `/cp-feature`
 
 **Runs:** all of the above, in order, with a checkpoint between each.
 
 ```
-/wp-triage  →  /wp-context  →  /wp-spec  →  /wp-plan
-     →  /wp-build  →  /wp-test  →  /wp-security  →  /wp-review
+/cp-triage  →  /cp-context  →  /cp-spec  →  /cp-plan
+     →  /cp-build  →  /cp-test  →  /cp-security  →  /cp-review
 ```
 
 It stops at each step and waits for you. Its whole purpose is written into the command
@@ -357,9 +357,9 @@ itself: *do not skip ahead to writing code.*
 
 ---
 
-### `/wp-bootstrap-conventions`
+### `/cp-bootstrap-conventions`
 
-**Runs the skill:** `company-conventions-bootstrap`
+**Runs the skill:** `cp-conventions-bootstrap`
 
 **What the skill does:** You point it at two or more of your existing plugin repositories.
 It scans them all and compares how they do things — naming, folder structure, licensing,
@@ -387,7 +387,7 @@ guessing what your team probably does.
 
 These load by themselves when needed.
 
-### `wp-agent-os` — the traffic controller
+### `cp-agent-os` — the traffic controller
 
 The agent reads this one first, every time. It decides which other skill applies, how
 careful to be, and what counts as "finished."
@@ -403,23 +403,23 @@ It also settles arguments. When two sources disagree, this order wins:
 
 In short: if a tool says the code is wrong, the tool is right.
 
-### `wp-static-analysis` — the automated checkers
+### `cp-static-analysis` — the automated checkers
 
 Runs PHPCS with the WordPress coding standards, PHPStan, a PHP syntax check, and a
 compatibility check against the oldest PHP version you support.
 
 It has no command because it is not something you do on its own — it runs *inside*
-`/wp-build`, `/wp-review` and `/wp-release`. When it reports problems it sorts them by
+`/cp-build`, `/cp-review` and `/cp-release`. When it reports problems it sorts them by
 importance: security issues first, formatting last.
 
-### `company-wp-conventions` — your house style
+### `cp-conventions` — your house style
 
 **This ships empty on purpose, and it says so when asked.**
 
 Nobody outside your company can write it. A guessed convention is worse than none, because
 it gets copied into every new plugin and quietly becomes "the way we do things."
 
-`/wp-bootstrap-conventions` is what fills it in, from your real code.
+`/cp-bootstrap-conventions` is what fills it in, from your real code.
 
 ---
 
@@ -430,10 +430,10 @@ concern against another.
 
 | Reviewer | Looks at |
 |---|---|
-| `wp-code-reviewer` | The whole change, especially anything that breaks other people's code |
-| `wp-security-auditor` | Security only, and reports how an attack would actually work |
-| `wp-test-engineer` | Tests, including permission cases and empty states |
-| `wp-standards-auditor` | Coding standards and static analysis, sorted by severity |
+| `cp-code-reviewer` | The whole change, especially anything that breaks other people's code |
+| `cp-security-auditor` | Security only, and reports how an attack would actually work |
+| `cp-test-engineer` | Tests, including permission cases and empty states |
+| `cp-standards-auditor` | Coding standards and static analysis, sorted by severity |
 
 ---
 
@@ -442,12 +442,12 @@ concern against another.
 Most days you will type three commands:
 
 ```
-/wp-context      when you open a plugin you have not worked on recently
-/wp-build        or /wp-debug, depending on the job
-/wp-security     before anything touching input, saved data, or permissions
+/cp-context      when you open a plugin you have not worked on recently
+/cp-build        or /cp-debug, depending on the job
+/cp-security     before anything touching input, saved data, or permissions
 ```
 
-Everything else happens on its own. `/wp-triage` decides how much process a task needs, so
+Everything else happens on its own. `/cp-triage` decides how much process a task needs, so
 a small fix stays a small fix.
 
 ---

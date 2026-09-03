@@ -18,7 +18,7 @@ Commit it, and every developer on that repo gets the same workflow — no per-ma
 
 ## How commands work here
 
-commands/  ->  type /wp-spec in chat
+commands/  ->  type /cp-spec in chat
 
 ## The official WordPress skills (optional but recommended)
 
@@ -41,7 +41,7 @@ say so rather than pretending.
 Skills invoke the deterministic plugin scanner at:
 
 ```
-.claude/skills/wp-context-discovery/scripts/plugin_context.mjs
+.claude/skills/cp-context-discovery/scripts/plugin_context.mjs
 ```
 
 That path is baked for this bundle's layout. Requires Node; no PHP needed to run it.

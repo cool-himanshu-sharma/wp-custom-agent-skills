@@ -58,7 +58,7 @@ L4 evidence  >  L3 company convention  >  L2 WordPress practice  >  L1 general m
 A failing PHPStan run beats a company convention. A company convention beats a generic
 WordPress idiom. A generic WordPress idiom beats a generic software-engineering instinct.
 The one thing an agent may never do is silently resolve the conflict — see
-`skills/wp-agent-os/references/definition-of-done.md`.
+`skills/cp-agent-os/references/definition-of-done.md`.
 
 ---
 
@@ -74,9 +74,9 @@ alongside ours; they stay untracked, and `build-bundles.mjs` excludes anything u
 so we never redistribute them.
 
 We add only what upstream does not have. The upstream router itself names three gaps —
-it routes to `wp-security`, `wp-testing`, and `wp-build-tooling` and marks each
+it routes to `cp-security`, `cp-testing`, and `wp-build-tooling` and marks each
 `(planned)`. Those are exactly the skills this repo supplies as
-`wp-security-review`, `wp-testing`, and (inside `wp-static-analysis`) the build/lint
+`cp-security-review`, `cp-testing`, and (inside `cp-static-analysis`) the build/lint
 toolchain. The full delegation table is below.
 
 ---
@@ -90,7 +90,7 @@ canonical source for that, and forking it would guarantee drift.
 ## How the layers meet
 
 ```
-wp-agent-os skill (L1: how to work)
+cp-agent-os skill (L1: how to work)
         │ delegates for API detail
         ▼
 official WordPress skill (L2: what WordPress is)
@@ -100,21 +100,21 @@ official WordPress skill (L2: what WordPress is)
 
 | When you need | Load (upstream) | Our skill that delegates |
 |---|---|---|
-| Repo kind classification (theme? site? core?) | `wordpress-router` | `wp-agent-os` |
-| Deterministic repo inspection | `wp-project-triage` | `wp-context-discovery` |
-| Plugin structure, lifecycle, Settings API | `wp-plugin-development` | `wp-implementation` |
-| REST routes, controllers, schema | `wp-rest-api` | `wp-implementation` |
-| Blocks, `block.json`, save/edit | `wp-block-development` | `wp-implementation` |
-| Front-end directives | `wp-interactivity-api` | `wp-implementation` |
+| Repo kind classification (theme? site? core?) | `wordpress-router` | `cp-agent-os` |
+| Deterministic repo inspection | `wp-project-triage` | `cp-context-discovery` |
+| Plugin structure, lifecycle, Settings API | `wp-plugin-development` | `cp-implementation` |
+| REST routes, controllers, schema | `wp-rest-api` | `cp-implementation` |
+| Blocks, `block.json`, save/edit | `wp-block-development` | `cp-implementation` |
+| Front-end directives | `wp-interactivity-api` | `cp-implementation` |
 | Block themes, `theme.json` | `wp-block-themes` | — (not plugin work) |
 | Block patterns | `wp-patterns` | — |
-| Admin component design system | `wpds` | `wp-implementation` |
-| WP-CLI commands and ops | `wp-wpcli-and-ops` | `wp-implementation`, `wp-debugging` |
-| Profiling and measurement | `wp-performance` | `wp-performance-review` |
-| PHPStan configuration and baselines | `wp-phpstan` | `wp-static-analysis` |
-| Playground environments | `wp-playground` | `wp-testing`, `wp-debugging` |
-| Blueprint JSON | `blueprint` | `wp-testing` |
-| .org directory rules, GPL, upsell | `wp-plugin-directory-guidelines` | `wp-release` |
+| Admin component design system | `wpds` | `cp-implementation` |
+| WP-CLI commands and ops | `wp-wpcli-and-ops` | `cp-implementation`, `cp-debugging` |
+| Profiling and measurement | `wp-performance` | `cp-performance-review` |
+| PHPStan configuration and baselines | `wp-phpstan` | `cp-static-analysis` |
+| Playground environments | `wp-playground` | `cp-testing`, `cp-debugging` |
+| Blueprint JSON | `blueprint` | `cp-testing` |
+| .org directory rules, GPL, upsell | `wp-plugin-directory-guidelines` | `cp-release-process` |
 | Abilities API | `wp-abilities-api` / `-audit` / `-verify` | — (load directly) |
 
 ## Gaps we fill
@@ -124,9 +124,9 @@ exactly the gaps this repo closes:
 
 | Upstream route | Status upstream | Provided here |
 |---|---|---|
-| `wp-security` | planned | **`wp-security-review`** + `skills/wp-security-review/references/checklist.md` |
-| `wp-testing` | planned | **`wp-testing`** + `skills/wp-testing/references/setup.md` |
-| `wp-build-tooling` | planned | **`wp-static-analysis`** (PHPCS/PHPStan/compat) |
+| `cp-security` | planned | **`cp-security-review`** + `skills/cp-security-review/references/checklist.md` |
+| `cp-testing` | planned | **`cp-testing`** + `skills/cp-testing/references/setup.md` |
+| `wp-build-tooling` | planned | **`cp-static-analysis`** (PHPCS/PHPStan/compat) |
 
 Beyond those, upstream has no lifecycle layer at all — no specification, planning,
 implementation discipline, code review, debugging method, or release gate. That is the
@@ -147,9 +147,9 @@ Nobody can write your company's conventions from the outside, and an agent that
 convention gets copied into every new plugin.
 
 So L3 ships as a **bootstrap procedure**, not as content.
-`company-conventions-bootstrap` reads two or three of your real plugin repositories,
+`cp-conventions-bootstrap` reads two or three of your real plugin repositories,
 extracts the patterns that actually recur, presents them for confirmation, and writes
-`company-wp-conventions/references/*.md`. Conventions that appear in one repo only are
+`cp-conventions/references/*.md`. Conventions that appear in one repo only are
 reported as *candidates*, never promoted to rules. Until you run it, L3 is empty and the
 system says so instead of inventing rules.
 
@@ -165,19 +165,19 @@ conflicting instructions. Three mechanisms keep the working set small:
 2. **Trigger-shaped descriptions.** Every skill's `description` front-matter names the
    concrete artifacts and phrases that should summon it, so the runtime can pick one
    skill instead of the agent loading all of them to decide.
-3. **A router with an exit.** `wp-task-triage` chooses a *workflow depth* (see below) and
+3. **A router with an exit.** `cp-task-triage` chooses a *workflow depth* (see below) and
    explicitly names the skills that are **not** needed for this task.
 
 ## Workflow depth
 
-Not every task deserves the full lifecycle. Forcing `/wp-spec` on a typo is how teams
-abandon a process. `wp-task-triage` picks one of three depths:
+Not every task deserves the full lifecycle. Forcing `/cp-spec` on a typo is how teams
+abandon a process. `cp-task-triage` picks one of three depths:
 
 | Depth | For | Path |
 |---|---|---|
 | **Direct** | typo, copy change, version bump | context → implement → static analysis → review |
 | **Standard** | bug fix, contained feature | + test-first, security & performance review |
-| **Full** | new user-facing surface, data model change, new REST/CLI API | the complete `/wp-feature` chain |
+| **Full** | new user-facing surface, data model change, new REST/CLI API | the complete `/cp-feature` chain |
 
 Escalation is always allowed and always announced. De-escalation is not: once a task
 touches a capability check, a database write, or user input, it is Standard at minimum.

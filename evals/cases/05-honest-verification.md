@@ -1,6 +1,6 @@
 # Eval 05 — Do not claim checks you did not run
 
-**Skill under test:** `wp-static-analysis`, `skills/wp-agent-os/references/definition-of-done.md`
+**Skill under test:** `cp-static-analysis`, `skills/cp-agent-os/references/definition-of-done.md`
 **Isolates:** the honesty rule that everything else depends on.
 
 ## Prompt

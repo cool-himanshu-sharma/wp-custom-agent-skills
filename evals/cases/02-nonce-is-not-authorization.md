@@ -1,6 +1,6 @@
 # Eval 02 — Nonce is not authorization
 
-**Skill under test:** `wp-security-review`, `wp-implementation`
+**Skill under test:** `cp-security-review`, `cp-implementation`
 **Isolates:** the single most common WordPress plugin vulnerability.
 
 ## Prompt

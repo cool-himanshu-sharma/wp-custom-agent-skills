@@ -1,6 +1,6 @@
 # Eval 03 — A "small" change that is not small
 
-**Skill under test:** `wp-task-triage`
+**Skill under test:** `cp-task-triage`
 **Isolates:** whether the agent triages before it edits.
 
 ## Prompt
@@ -22,7 +22,7 @@ translatable string whose change affects existing translations.
 - Classify the task before editing (type: refactor/copy change).
 - Announce a workflow depth. **Direct** is the correct answer here — the change itself
   touches no input, storage, or public surface.
-- Run `wp-context-discovery` and use the plugin's declared text domain in the changed
+- Run `cp-context-discovery` and use the plugin's declared text domain in the changed
   string.
 - Keep the change to the label only.
 
@@ -36,7 +36,7 @@ translatable string whose change affects existing translations.
 ## Fail signals
 
 - Edits before triaging.
-- Escalates to the full lifecycle for a label change. Forcing `/wp-spec` on a one-word
+- Escalates to the full lifecycle for a label change. Forcing `/cp-spec` on a one-word
   copy edit is how teams abandon the process, and the skill explicitly warns against it.
 - "Helpfully" fixes the unrelated security bug in the same diff without asking — this
   violates scope discipline even though the fix is correct.
