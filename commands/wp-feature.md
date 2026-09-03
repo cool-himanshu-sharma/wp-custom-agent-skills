@@ -1,0 +1,35 @@
+---
+description: Run the full WordPress feature lifecycle — triage, context, spec, plan, build, test, security, review
+---
+
+The complete lifecycle for a new feature: `$ARGUMENTS`
+
+Run these in order, stopping at each gate for confirmation. Do not skip ahead to
+implementation — that is the failure this command exists to prevent.
+
+```
+/wp-triage    → task type + workflow depth
+     ↓
+/wp-context   → Plugin Context Record (identity, surface, storage, toolchain)
+     ↓
+/wp-spec      → surface, data model, capabilities, public API, i18n, acceptance criteria
+     ↓          [GATE: user confirms the spec]
+/wp-plan      → ordered tasks, WordPress sequencing rules applied
+     ↓          [GATE: user approves the plan]
+/wp-build     → implement task by task, test-first, guardrails at write time
+     ↓
+/wp-test      → happy path, no-permission, empty state, bad input, upgrade
+     ↓
+/wp-security  → enumerate entry points, five questions each
+     ↓
+/wp-review    → seven axes, including public API/back-compat and i18n
+```
+
+Skill loading is progressive: load the skill for the phase you are in, not all of them.
+Announce which phase you are entering and what it produced.
+
+If triage returns **Direct** depth, say so and collapse to
+`/wp-context → /wp-build → /wp-review` rather than running the full chain — forcing the
+whole lifecycle onto a typo is how teams abandon a process.
+
+Escalation is always allowed and always announced; de-escalation is not.

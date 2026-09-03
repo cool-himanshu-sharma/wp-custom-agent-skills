@@ -1,0 +1,23 @@
+---
+description: Diagnose a broken WordPress plugin — reproduce, isolate, find the root cause, guard it
+---
+
+Invoke the `wp-debugging` skill.
+
+Symptom: `$ARGUMENTS`
+
+1. **See the actual error.** Enable `WP_DEBUG` and `WP_DEBUG_LOG`, read `debug.log`.
+   Never debug a white screen you have not got the error text for.
+2. **Reproduce in a clean environment** — wp-env or a Playground Blueprint, this plugin
+   only, default theme. This step decides everything:
+   - reproduces → plugin defect, continue;
+   - does not reproduce → conflict or site configuration, isolate by deactivating all
+     plugins and reactivating one at a time.
+3. **Localise** — bisect by version (`git bisect`) or by hook (`has_action()`, logging
+   inside the callback, checking priority and load order).
+4. **Fix the root cause**, not the symptom. Ask why the value was missing before adding a
+   guard for it being missing.
+5. **Guard it** with a test that fails before the fix (see `/wp-test`).
+
+Report: symptom, root cause with `file:line`, the commit that introduced it, the fix, the
+guarding test, and how it was verified.

@@ -1,0 +1,33 @@
+# Vendored upstream WordPress skills (L2).
+#
+# These are copies of https://github.com/WordPress/agent-skills, not our work. We vendor
+# rather than fork so we do not drift from upstream and do not redistribute their code.
+# To use them locally, copy them in — they stay untracked, and build-bundles.mjs
+# excludes anything untracked from the bundles:
+#
+#   git clone https://github.com/WordPress/agent-skills
+#   cp -r agent-skills/skills/* skills/
+#
+skills/wordpress-router/
+skills/wp-project-triage/
+skills/wp-plugin-development/
+skills/wp-rest-api/
+skills/wp-block-development/
+skills/wp-interactivity-api/
+skills/wp-performance/
+skills/wp-phpstan/
+skills/wp-playground/
+skills/blueprint/
+skills/wp-wpcli-and-ops/
+skills/wp-plugin-directory-guidelines/
+skills/wpds/
+skills/wp-block-themes/
+skills/wp-patterns/
+skills/wp-abilities-api/
+skills/wp-abilities-audit/
+skills/wp-abilities-verify/
+
+# Local clone of upstream, if made inside this directory.
+agent-skills/
+node_modules/
+# bundles/ IS committed — developers copy from it without running node.

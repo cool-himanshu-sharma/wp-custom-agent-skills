@@ -1,0 +1,12 @@
+# Normalise line endings so every clone sees LF, on Windows included.
+#
+# This is load-bearing, not cosmetic. The front-matter parsers in scripts/ read
+# `key: value` pairs; with CRLF checkouts a Windows clone silently produced bundles
+# containing zero commands and zero personas, because every description parsed as absent.
+# The parsers now tolerate CRLF as well, but normalising here stops the class of bug.
+* text=auto eol=lf
+
+*.md   text eol=lf
+*.mjs  text eol=lf
+*.json text eol=lf
+*.php  text eol=lf
