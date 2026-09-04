@@ -60,7 +60,14 @@ wp-custom-agent-skills/
 │                    fixture plugin used to check the skills actually catch bugs.
 ├── scripts/       ← build-bundles.mjs (generates bundles/) and verify.mjs (checks it).
 │
-├── bundles/       ← THE OUTPUT. This is the part developers copy.
+├── auto-setup/    ← THE EASY WAY IN. Copy this one folder into your plugin and run
+│                    `node auto-setup/setup.mjs`. It detects your agent folders,
+│                    creates the missing ones, and merges the files in.
+│   ├── setup.mjs       the installer
+│   ├── README.md       what a developer needs, and nothing else
+│   └── payload/        generated — the three bundles it installs from
+│
+├── bundles/       ← THE OUTPUT, unpacked. Copy by hand if you prefer not to run a script.
 │   ├── claude/         → copy into  <your-plugin>/.claude/
 │   ├── cursor/         → copy into  <your-plugin>/.cursor/
 │   └── agents/         → copy into  <your-plugin>/.agents/   (Codex + Antigravity)
@@ -71,8 +78,9 @@ wp-custom-agent-skills/
 ```
 
 **The one rule:** `skills/`, `commands/` and `agents/` are the source you edit. `bundles/`
-is **generated** from them — never edit anything inside `bundles/` by hand, because the
-next build overwrites it.
+and `auto-setup/payload/` are **generated** from them — never edit anything inside either
+by hand, because the next build overwrites it. (`auto-setup/setup.mjs` and
+`auto-setup/README.md` are hand-written source and are safe to edit.)
 
 Each bundle is the same workflow rewritten into the layout that agent expects:
 
@@ -88,13 +96,37 @@ Each bundle is the same workflow rewritten into the layout that agent expects:
 
 You need **one folder**, copied **once**, into the plugin you are working on.
 
-### Step 1 — get this repo
-
 ```bash
 git clone <your-repo-url> wp-custom-agent-skills
 ```
 
-### Step 2 — copy the bundle for your agent
+### The easy way — one folder, one command
+
+Copy `auto-setup/` into your plugin and run it:
+
+```bash
+cp -r wp-custom-agent-skills/auto-setup  my-plugin/
+cd my-plugin
+node auto-setup/setup.mjs
+```
+
+That is the whole install. The script works out which agent folders your repo uses
+(`.claude/`, `.cursor/`, `.agents/`), creates the ones that are missing, and **adds** the
+files into the ones that exist — merging, never replacing. Nothing is deleted, and every
+file it writes is `cp-` prefixed so it cannot collide with your own skills or the official
+WordPress `wp-*` ones. Your `.claude/README.md`, if you have one, is safe: the bundle's
+own README installs as `cp-README.md`.
+
+Not sure? `node auto-setup/setup.mjs --dry-run` prints exactly what it would change and
+writes nothing. Then commit `.claude/` (and friends), restart your agent, and delete
+`auto-setup/` — or keep it to re-run when a new version lands.
+
+Requires Node. No PHP, no `npm install`, no dependencies. Full options:
+[auto-setup/README.md](auto-setup/README.md).
+
+### The manual way — copy the bundle for your agent
+
+Prefer not to run a script? The same files are in `bundles/`, ready to copy by hand.
 
 Copy the **contents** of your bundle into the matching folder inside your plugin:
 
@@ -172,7 +204,7 @@ my-plugin/
 └── includes/
 ```
 
-### Step 3 — commit it
+### Then commit it — either way you installed
 
 ```bash
 cd my-plugin
@@ -184,7 +216,7 @@ This is the step that matters. Because the workflow lives **inside the plugin re
 every teammate who clones that plugin gets it automatically — no setup on their machine,
 and the process is versioned next to the code it governs.
 
-### Step 4 — restart your agent
+### And restart your agent
 
 Open your agent in the plugin folder. Type `/` and the `cp-*` commands appear.
 
@@ -277,13 +309,19 @@ as a change to the code.
 Edit the source, then rebuild:
 
 ```bash
-node scripts/build-bundles.mjs   # regenerates all three bundles
-node scripts/verify.mjs          # fails if bundles/ drifted from source
+node scripts/build-bundles.mjs   # regenerates bundles/ AND auto-setup/payload/
+node scripts/verify.mjs          # fails if either drifted from source
 ```
 
 `verify.mjs` checks front matter, that every skill's name matches its folder, that routing
-targets exist, that links resolve, and that `bundles/` is current. A stale bundle is a hard
-failure — that is the only thing which makes a committed generated folder trustworthy.
+targets exist, that links resolve, that the `auto-setup/` installer is self-contained, and
+that both generated folders are current. A stale bundle is a hard failure — that is the
+only thing which makes a committed generated folder trustworthy.
+
+`auto-setup/payload/` deliberately duplicates `bundles/`, because "extract this one folder"
+has to mean exactly that: a payload reaching outside itself would break the moment someone
+copied only what they were told to copy. The duplication is safe precisely because it is
+generated and hash-checked, never hand-maintained.
 
 To support another agent, add an entry to `TARGETS` in `build-bundles.mjs` and rebuild. No
 skills need rewriting.

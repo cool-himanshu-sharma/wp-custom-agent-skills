@@ -190,6 +190,9 @@ const markdownFiles = [];
     // bundles/ is generated; the --check hash comparison already guarantees it matches
     // source, and its paths deliberately point at the consuming project.
     if (dir === ROOT && e.name === "bundles") continue;
+    // Same for auto-setup/payload/ — generated, hash-checked. auto-setup/README.md and
+    // setup.mjs beside it are source and ARE checked.
+    if (dir === path.join(ROOT, "auto-setup") && e.name === "payload") continue;
     const full = path.join(dir, e.name);
     if (e.isDirectory()) walk(full);
     else if (e.name.endsWith(".md")) markdownFiles.push(full);
@@ -248,7 +251,34 @@ for (const nameRef of routed) {
 }
 pass("routing", `${routed.size} routed skill names checked against local + upstream`);
 
-// ---------- 9. bundles are in sync with source ----------
+// ---------- 9. the auto-setup installer is complete ----------
+// auto-setup/ is what most developers actually extract, so a missing piece there breaks
+// installation for everyone even while bundles/ is perfect. The payload is covered by the
+// hash check below; these are the hand-written parts it cannot see.
+{
+  const autoSetup = path.join(ROOT, "auto-setup");
+  if (fs.existsSync(autoSetup)) {
+    for (const f of ["setup.mjs", "README.md"]) {
+      if (!fs.existsSync(path.join(autoSetup, f))) fail("auto-setup", `auto-setup/${f} is missing`);
+    }
+    // setup.mjs resolves its payload relative to itself. If the two ever separate, the
+    // extracted folder installs nothing and says so only at the developer's terminal.
+    const setupSrc = read(path.join(autoSetup, "setup.mjs")) || "";
+    if (!/PAYLOAD\s*=\s*path\.join\(\s*HERE\s*,\s*"payload"\s*\)/.test(setupSrc)) {
+      fail("auto-setup", "setup.mjs no longer resolves payload/ relative to itself — the extracted folder would not be self-contained");
+    }
+    for (const key of ["claude", "cursor", "agents"]) {
+      if (!fs.existsSync(path.join(autoSetup, "payload", key))) {
+        fail("auto-setup", `auto-setup/payload/${key}/ is missing — run: node scripts/build-bundles.mjs`);
+      }
+    }
+    if (!failures.some((x) => x.check === "auto-setup")) {
+      pass("auto-setup", "installer present and self-contained (setup.mjs + README.md + payload/)");
+    }
+  }
+}
+
+// ---------- 10. bundles are in sync with source ----------
 // bundles/ is generated and committed so developers can copy a folder without running
 // node. That only stays trustworthy if a stale bundle is a hard failure.
 if (fs.existsSync(path.join(ROOT, "bundles"))) {
@@ -261,7 +291,7 @@ if (fs.existsSync(path.join(ROOT, "bundles"))) {
     pass("bundles", (res.stdout || "").trim() || "bundles/ up to date");
   } else {
     const first = (res.stderr || res.stdout || "").trim().split("\n").filter(Boolean);
-    fail("bundles", "bundles/ is stale — run: node scripts/build-bundles.mjs");
+    fail("bundles", "generated output is stale — run: node scripts/build-bundles.mjs");
     for (const line of first.slice(1, 5)) warn("bundles", line.trim());
   }
 }

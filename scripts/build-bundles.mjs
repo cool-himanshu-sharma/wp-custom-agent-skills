@@ -24,6 +24,18 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const BUNDLES = path.join(ROOT, "bundles");
+/**
+ * auto-setup/ ships the same rendered bundles alongside an installer, so a developer can
+ * extract one folder into their plugin and run one command. It carries its own copy
+ * because "extract this folder" has to mean exactly that — a payload that reached outside
+ * itself would break the moment someone copied only what they were told to copy.
+ *
+ * The duplication is safe because it is generated and hash-checked here: verify.mjs makes
+ * a stale payload a hard failure, exactly as it does for bundles/. Only payload/ is
+ * managed; auto-setup/setup.mjs and auto-setup/README.md are hand-written source.
+ */
+const AUTOSETUP = path.join(ROOT, "auto-setup", "payload");
+const OUTPUTS = [BUNDLES, AUTOSETUP];
 const checkOnly = process.argv.includes("--check");
 
 const read = (p) => { try { return fs.readFileSync(p, "utf8"); } catch { return null; } };
@@ -300,41 +312,46 @@ const hash = (s) => crypto.createHash("sha1").update(s).digest("hex");
 
 if (checkOnly) {
   const stale = [];
-  for (const [rel, content] of files) {
-    const onDisk = read(path.join(BUNDLES, rel));
-    if (onDisk === null || hash(onDisk) !== hash(content)) stale.push(rel);
-  }
-  // Also catch files on disk that the source no longer produces.
-  const walk = (dir, base = "") => {
-    for (const e of ls(dir)) {
-      const rel = base ? `${base}/${e.name}` : e.name;
-      if (e.isDirectory()) walk(path.join(dir, e.name), rel);
-      else if (!files.has(rel)) stale.push(`${rel} (orphaned)`);
+  for (const out of OUTPUTS) {
+    const label = path.relative(ROOT, out).split(path.sep).join("/");
+    for (const [rel, content] of files) {
+      const onDisk = read(path.join(out, rel));
+      if (onDisk === null || hash(onDisk) !== hash(content)) stale.push(`${label}/${rel}`);
     }
-  };
-  if (fs.existsSync(BUNDLES)) walk(BUNDLES);
+    // Also catch files on disk that the source no longer produces.
+    const walk = (dir, base = "") => {
+      for (const e of ls(dir)) {
+        const rel = base ? `${base}/${e.name}` : e.name;
+        if (e.isDirectory()) walk(path.join(dir, e.name), rel);
+        else if (!files.has(rel)) stale.push(`${label}/${rel} (orphaned)`);
+      }
+    };
+    if (fs.existsSync(out)) walk(out);
+  }
 
   if (stale.length) {
-    console.error(`\nbundles/ is STALE — ${stale.length} file(s) differ from source:`);
+    console.error(`\ngenerated output is STALE — ${stale.length} file(s) differ from source:`);
     for (const s of stale.slice(0, 10)) console.error(`  ${s}`);
     if (stale.length > 10) console.error(`  ... and ${stale.length - 10} more`);
     console.error(`\nRun: node scripts/build-bundles.mjs\n`);
     process.exit(1);
   }
-  console.log(`bundles/ up to date (${files.size} files)`);
+  console.log(`bundles/ and auto-setup/payload/ up to date (${files.size} files each)`);
   process.exit(0);
 }
 
-fs.rmSync(BUNDLES, { recursive: true, force: true });
-for (const [rel, content] of files) {
-  const full = path.join(BUNDLES, rel);
-  fs.mkdirSync(path.dirname(full), { recursive: true });
-  fs.writeFileSync(full, content);
+for (const out of OUTPUTS) {
+  fs.rmSync(out, { recursive: true, force: true });
+  for (const [rel, content] of files) {
+    const full = path.join(out, rel);
+    fs.mkdirSync(path.dirname(full), { recursive: true });
+    fs.writeFileSync(full, content);
+  }
 }
 
-console.log(`\nBuilt bundles/ — ${files.size} files\n${"=".repeat(56)}`);
+console.log(`\nBuilt bundles/ and auto-setup/payload/ — ${files.size} files each\n${"=".repeat(56)}`);
 for (const [key, t] of Object.entries(TARGETS)) {
   const n = [...files.keys()].filter((f) => f.startsWith(key + "/")).length;
   console.log(`  ${t.label.padEnd(13)} bundles/${key.padEnd(12)} ${String(n).padStart(4)} files   copy into ${t.copyInto}${t.verified ? "" : "   [UNVERIFIED]"}`);
 }
-console.log("");
+console.log(`\n  auto-setup/   the same three, plus setup.mjs — extract that one folder and run:\n                node auto-setup/setup.mjs\n`);
